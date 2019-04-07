@@ -33,14 +33,71 @@ Polynomial::Polynomial(const Polynomial& polynomial): _degree(polynomial._degree
 	}
 }
 Polynomial::~Polynomial(){
-	// DO THIS FIRST TO PREVENT MEMORY LEAKS!
+		delete []_coefficients;
 }
+
 const Polynomial Polynomial::Sum(const Polynomial& rhs)const{
-	return Polynomial(0);
+	size_t degreeMax = 0;
+	size_t degreeMin = 0;
+
+	if (_degree > rhs._degree){
+		degreeMax = _degree;
+		degreeMin = rhs._degree;
+	} else{
+		degreeMax = rhs._degree;
+		degreeMin = _degree;
+	}
+	float solution[degreeMax + 1];
+	if(_degree > rhs._degree){
+		for (size_t i = 0; i < degreeMax + 1; i++) {
+			solution[i] = _coefficients[i];
+		}
+		for (size_t i = 0; i < degreeMin + 1; i++) {
+			solution[i] += rhs._coefficients[i];
+		}
+	}
+	else {
+		for (size_t i = 0; i < degreeMax; i++) {
+			solution[i] = rhs._coefficients[i];
+		}
+		for (size_t i = 0; i < degreeMin + 1; i++) {
+			solution[i] += _coefficients[i];
+		}
+	}
+	return Polynomial(degreeMax, solution);
 }
+
 const Polynomial Polynomial::Subtract(const Polynomial& rhs)const{
-	return Polynomial(0);
+	size_t degreeMax = 0;
+	size_t degreeMin = 0;
+
+	if (_degree > rhs._degree){
+		degreeMax = _degree;
+		degreeMin = rhs._degree;
+	} else{
+		degreeMax = rhs._degree;
+		degreeMin = _degree;
+	}
+	float solution[degreeMax + 1];
+	if(_degree > rhs._degree){
+		for (size_t i = 0; i < degreeMax + 1; i++) {
+			solution[i] = _coefficients[i];
+		}
+		for (size_t i = 0; i < degreeMin + 1; i++) {
+			solution[i] -= rhs._coefficients[i];
+		}
+	}
+	else {
+		for (size_t i = 0; i < degreeMax; i++) {
+			solution[i] = rhs._coefficients[i];
+		}
+		for (size_t i = 0; i < degreeMin + 1; i++) {
+			solution[i] -= _coefficients[i];
+		}
+	}
+	return Polynomial(degreeMax, solution);
 }
+
 const Polynomial Polynomial::Minus()const{
 	Polynomial retVal(*this);
 	for (size_t i = 0; i < _degree + 1; i++) {
@@ -49,20 +106,36 @@ const Polynomial Polynomial::Minus()const{
 	return retVal;
 }
 const Polynomial Polynomial::Multiply(const Polynomial& rhs)const{
-	return Polynomial(0);
+	size_t newDegree = _degree + rhs._degree;
+	float solution[newDegree + 1];
+	for (size_t i = 0; i < newDegree; i++) {
+		solution[i] = 0.0;
+	}
+	for (size_t i = 0; i <= _degree; i++) {
+		for (size_t j = 0; j <= rhs._degree; j++) {
+			solution[i+j] += _coefficients[i] * rhs._coefficients[j];
+		}
+	}
+	return Polynomial(newDegree, solution);
 }
+
 const Polynomial Polynomial::Divide(const Polynomial& rhs)const{
 	return Polynomial(0);
 }
+
 const Polynomial Polynomial::Derive()const{
+		
 	return Polynomial(0);
 }
+
 float Polynomial::Evaluate(float x)const{
 	return FLT_MAX;
 }
+
 float Polynomial::Integrate(float start, float end)const{
 	return FLT_MAX;
 }
+
 const Polynomial& Polynomial::operator=(const Polynomial& rhs){
 	if (&rhs == this){
 		return *this;
@@ -79,6 +152,7 @@ const Polynomial& Polynomial::operator=(const Polynomial& rhs){
 	}
 	return *this;
 }
+
 bool Polynomial::Equals(const Polynomial& rhs)const{
 	if (_degree != rhs._degree){
 		return false;
@@ -90,6 +164,7 @@ bool Polynomial::Equals(const Polynomial& rhs)const{
 	}
 	return true;
 }
+
 string Polynomial::ToString()const{
 	stringstream ss;
 	for (size_t i = _degree; i > 0; i--) {
@@ -98,6 +173,7 @@ string Polynomial::ToString()const{
 	ss << showpos << fixed << setprecision(2) << _coefficients[0];
 	return ss.str();
 }
+
 ostream& Polynomial::Write(ostream& output)const{
 	output << _degree << " ";
 	for (size_t i = 0; i < _degree + 1; i++) {
@@ -105,6 +181,7 @@ ostream& Polynomial::Write(ostream& output)const{
 	}
 	return output;
 }
+
 istream& Polynomial::Read(istream& input){
 	size_t degree;
 	input >> degree;
