@@ -1,3 +1,11 @@
+// Title: Lab 1 - polynomial-class-glance
+//
+// Purpose: create methods that implement math function with dynamic memory
+//
+// Class: CSC 2431 Spring 2019
+//
+// Author: Keenan Leslie
+
 #ifndef POLYNOMIAL_H
 #define POLYNOMIAL_H
 

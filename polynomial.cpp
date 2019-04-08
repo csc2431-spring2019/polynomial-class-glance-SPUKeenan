@@ -5,7 +5,9 @@
 #include <sstream>
 #include <iomanip>
 #include <cfloat>
+#include <cmath>
 
+using std::pow;
 using std::istream;
 using std::ostream;
 using std::string;
@@ -14,28 +16,47 @@ using std::fixed;
 using std::setprecision;
 using std::showpos;
 
+// Produces: creates a dynamically allocated array
+// Params: size_t degree, carries the degree size
+// Returns: nothing
+// Format Error: none
 Polynomial::Polynomial(size_t degree) : _degree(degree){
 	_coefficients = new float[_degree + 1];
 	for (size_t i = 0; i < _degree + 1; i++) {
 		_coefficients[i] = 0.0;
 	}
 }
+// Produces: a deep copy of the array
+// Params: size_t degree, degree of array, const float* coefficients, array
+// Returns: nothing
+// Format Error: none
 Polynomial::Polynomial(size_t degree, const float* coefficients): _degree(degree){
 	_coefficients = new float[_degree + 1];
 	for (size_t i = 0; i < _degree + 1; i++) {
 		_coefficients[i] = coefficients[i];
 	}
 }
+// Produces: assigns values to the array
+// Params: const Polynomial& polynomial, polynomial access variable
+// Returns: nothing
+// Format Error: none
 Polynomial::Polynomial(const Polynomial& polynomial): _degree(polynomial._degree){
 	_coefficients = new float[_degree + 1];
 	for (size_t i = 0; i < _degree + 1; i++) {
 		_coefficients[i] = polynomial._coefficients[i];
 	}
 }
+// Produces: destructor for dynamically allocated memory
+// Params: none
+// Returns: nothing
+// Format Error: none
 Polynomial::~Polynomial(){
 		delete []_coefficients;
 }
-
+// Produces: the sum of two polynomials
+// Params: const Polu	& rhs, the second arrayt of data that we are adding
+// Returns: the max degree and the solution
+// Format Error: none
 const Polynomial Polynomial::Sum(const Polynomial& rhs)const{
 	size_t degreeMax = 0;
 	size_t degreeMin = 0;
@@ -66,7 +87,10 @@ const Polynomial Polynomial::Sum(const Polynomial& rhs)const{
 	}
 	return Polynomial(degreeMax, solution);
 }
-
+// Produces: subtracts two polynomials from eachother
+// Params: const Polynomial& rhs, second array
+// Returns: max degree and the solution array
+// Format Error: none
 const Polynomial Polynomial::Subtract(const Polynomial& rhs)const{
 	size_t degreeMax = 0;
 	size_t degreeMin = 0;
@@ -97,7 +121,10 @@ const Polynomial Polynomial::Subtract(const Polynomial& rhs)const{
 	}
 	return Polynomial(degreeMax, solution);
 }
-
+// Produces: a negative version of the polynomial array
+// Params: none
+// Returns: polynomial class retVal
+// Format Error: none
 const Polynomial Polynomial::Minus()const{
 	Polynomial retVal(*this);
 	for (size_t i = 0; i < _degree + 1; i++) {
@@ -105,6 +132,10 @@ const Polynomial Polynomial::Minus()const{
 	}
 	return retVal;
 }
+// Produces: Multiplies two polynomials
+// Params: const Polynomial& rhs, the second array to multiply with
+// Returns: the max degree and the solution
+// Format Error: none
 const Polynomial Polynomial::Multiply(const Polynomial& rhs)const{
 	size_t newDegree = _degree + rhs._degree;
 	float solution[newDegree + 1];
@@ -118,24 +149,65 @@ const Polynomial Polynomial::Multiply(const Polynomial& rhs)const{
 	}
 	return Polynomial(newDegree, solution);
 }
-
+// Produces: Would Divides two arrays
+// Params: const Polynomial& rhs, second array
+// Returns: nothing
+// Format Error: none
 const Polynomial Polynomial::Divide(const Polynomial& rhs)const{
 	return Polynomial(0);
 }
-
+// Produces: takes the derivitive of a polynomial
+// Params: none
+// Returns: the max degree and the solution
+// Format Error: none
 const Polynomial Polynomial::Derive()const{
-		
-	return Polynomial(0);
-}
+	float solution [_degree];
+	size_t newDegree = _degree - 1;
 
+	for (size_t i = 0; i < _degree; i++) {
+		solution[i] = 0.0;
+	}
+	for (size_t i = 0; i < _degree; i++) {
+		solution[i] = (i+1) * _coefficients[i+1];
+	}
+	return Polynomial(newDegree, solution);
+}
+// Produces: evaluates the polynomial with a value of x
+// Params: float x, the number we are evauluating at
+// Returns: the solution
+// Format Error: none
 float Polynomial::Evaluate(float x)const{
-	return FLT_MAX;
+	float solution [_degree + 1];
+	float answer = 0.0;
+	for (size_t i = 0; i < _degree + 1; i++){
+		solution[i] = _coefficients[i];
+	}
+	for (size_t j = 0; j < _degree + 1; j++) {
+		answer += solution[j] * (pow(x, j));
+	}
+	return answer;
 }
-
+// Produces: the integral of the polynomial
+// Params: float start, the starting point, float end, the end point
+// Returns: the definite integral
+// Format Error: none
 float Polynomial::Integrate(float start, float end)const{
-	return FLT_MAX;
+	float solution[_degree + 2];
+	float endAnswer = 0.0, startAnswer = 0.0, answer = 0.0;
+	for (size_t i = 0; i < _degree + 1; i++) {
+		solution[i] = _coefficients[i];
+	}
+	for (size_t j = 0; j < _degree + 1; j++) {
+		endAnswer += ((solution[j] / (j + 1)) * pow(end, (j + 1)));
+		startAnswer += ((solution[j] / (j + 1)) * pow(start, (j + 1)));
+	}
+	answer = endAnswer - startAnswer;
+	return answer;
 }
-
+// Produces: allows us to use '=' as an operator
+// Params: const Polynomial& rhs
+// Returns: this, the polynomial
+// Format Error: none
 const Polynomial& Polynomial::operator=(const Polynomial& rhs){
 	if (&rhs == this){
 		return *this;
@@ -152,7 +224,10 @@ const Polynomial& Polynomial::operator=(const Polynomial& rhs){
 	}
 	return *this;
 }
-
+// Produces: checks to make sure that the answer we get and what it should be are actually equal
+// Params: const Polynomial& rhs, second array
+// Returns: true or false
+// Format Error: none
 bool Polynomial::Equals(const Polynomial& rhs)const{
 	if (_degree != rhs._degree){
 		return false;
@@ -164,7 +239,10 @@ bool Polynomial::Equals(const Polynomial& rhs)const{
 	}
 	return true;
 }
-
+// Produces: an output in string format
+// Params: none
+// Returns: the string we are outputting
+// Format Error: none
 string Polynomial::ToString()const{
 	stringstream ss;
 	for (size_t i = _degree; i > 0; i--) {
@@ -173,7 +251,10 @@ string Polynomial::ToString()const{
 	ss << showpos << fixed << setprecision(2) << _coefficients[0];
 	return ss.str();
 }
-
+// Produces: output of the data
+// Params: ostream& output, output variable
+// Returns: the output of the data
+// Format Error: none
 ostream& Polynomial::Write(ostream& output)const{
 	output << _degree << " ";
 	for (size_t i = 0; i < _degree + 1; i++) {
@@ -181,7 +262,10 @@ ostream& Polynomial::Write(ostream& output)const{
 	}
 	return output;
 }
-
+// Produces: reads data from the input stream
+// Params: istream& input, input variable
+// Returns: the input
+// Format Error: none
 istream& Polynomial::Read(istream& input){
 	size_t degree;
 	input >> degree;
